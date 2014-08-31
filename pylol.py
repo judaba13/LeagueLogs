@@ -156,58 +156,57 @@ class AcessLimit:
 #######################
 class PyLoL:
 	def __init__(self, key, default_region=NORTH_AMERICA, limits=(AcessLimit(10, 10), AcessLimit(500, 600), )):
-	        self.key = key
-	        self.default_region = default_region
-	        self.limits = limits
+		self.key = key
+		self.default_region = default_region
+		self.limits = limits
 
 	def can_make_request(self):
 		for lim in self.limits:
-		    if not lim.request_available():
-		        return False
-		return True
+			if not lim.request_available():
+				return False
+			return True
 
 	def base_request(self, url, region, static=False, **kwargs):
-	    if region is None:
-	        region = self.default_region
-	    args = {'api_key': self.key}
-	    for k in kwargs:
-	        if kwargs[k] is not None:
-	            args[k] = kwargs[k]
-	    r = requests.get(
-	        'https://{proxy}.api.pvp.net/api/lol/{static}{region}/{url}'.format(
-	            proxy='global' if static else region,
-	            static='static-data/' if static else '',
-	            region=region,
-	            url=url
-	        ),
-	        params=args
-	    )
-	    if not static:
-	        for lim in self.limits:
-	            lim.add_request()
-	    raise_status(r)
-	    return r.json()
-
+		if region is None:
+			region = self.default_region
+		args = {'api_key': self.key}
+		for k in kwargs:
+			if kwargs[k] is not None:
+				args[k] = kwargs[k]
+		r = requests.get(
+	    'https://{proxy}.api.pvp.net/api/lol/{static}{region}/{url}'.format(
+	      proxy='global' if static else region,
+	      static='static-data/' if static else '',
+	      region=region,
+	      url=url
+	    ),
+	    params=args
+		)
+		if not static:
+			for lim in self.limits:
+				lim.add_request()
+		raise_status(r)
+		return r.json()
 	#######################
 	#----Champion-v1.2----#
 	#######################
 	def _champion_request(self, end_url, region, **kwargs):
-	    return self.base_request('v{version}/{end_url}'.format(version=api_versions['champion'], end_url=end_url), region, **kwargs)
+		return self.base_request('v{version}/{end_url}'.format(version=api_versions['champion'], end_url=end_url), region, **kwargs)
 
 	def get_all_champions(self, region=None, free_to_play=False):
-	    return self._champion_request('champion', region, freeToPlay=free_to_play)
+		return self._champion_request('champion', region, freeToPlay=free_to_play)
 
 	def get_champion(self, champion_id, region=None):
-	    return self._champion_request('champion/{id}'.format(id=champion_id), region)
+		return self._champion_request('champion/{id}'.format(id=champion_id), region)
 
 	#######################
 	#------Game-v1.3------#
 	#######################
 	def _game_request(self, end_url, region, **kwargs):
-	    return self.base_request('v{version}/{end_url}'.format(version=api_versions['game'], end_url=end_url), region, **kwargs)
+		return self.base_request('v{version}/{end_url}'.format(version=api_versions['game'], end_url=end_url), region, **kwargs)
 
 	def get_recent_games(self, summoner_id, region=None):
-	    return self._game_request('game/by-summoner/{summoner_id}/recent'.format(summoner_id=summoner_id), region)
+		return self._game_request('game/by-summoner/{summoner_id}/recent'.format(summoner_id=summoner_id), region)
 
 	#######################
 	#-----League-v2.5-----#
@@ -218,30 +217,30 @@ class PyLoL:
 	def get_league(self, summoner_ids=None, team_ids=None, region=None):
 		"""summoner_ids and team_ids arguments must be iterable, only one should be specified, not both"""
 		if (summoner_ids is None) != (team_ids is None):
-		    if summoner_ids is not None:
-		        return self._league_request(
-		            'league/by-summoner/{summoner_ids}'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
-		            region
-		        )
-		    else:
-		        return self._league_request(
-		            'league/by-team/{team_ids}'.format(team_ids=','.join([str(t) for t in team_ids])),
-		            region
-		        )
+			if summoner_ids is not None:
+				return self._league_request(
+					'league/by-summoner/{summoner_ids}'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
+					region
+				)
+			else:
+				return self._league_request(
+					'league/by-team/{team_ids}'.format(team_ids=','.join([str(t) for t in team_ids])),
+					region
+				)
 
 	def get_league_entry(self, summoner_ids=None, team_ids=None, region=None):
 		"""summoner_ids and team_ids arguments must be iterable, only one should be specified, not both"""
 		if (summoner_ids is None) != (team_ids is None):
-		    if summoner_ids is not None:
-		        return self._league_request(
-		            'league/by-summoner/{summoner_ids}/entry'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
-		            region
-		        )
-		    else:
-		        return self._league_request(
-		            'league/by-team/{team_ids}/entry'.format(team_ids=','.join([str(t) for t in team_ids])),
-		            region
-		        )
+			if summoner_ids is not None:
+				return self._league_request(
+					'league/by-summoner/{summoner_ids}/entry'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
+					region
+				)
+			else:
+				return self._league_request(
+					'league/by-team/{team_ids}/entry'.format(team_ids=','.join([str(t) for t in team_ids])),
+					region
+				)
 
 	def get_challenger(self, region=None, queue=solo_queue):
 		return self._league_request('league/challenger', region, type=queue)
