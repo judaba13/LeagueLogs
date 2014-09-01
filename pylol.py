@@ -244,3 +244,211 @@ class PyLoL:
 
 	def get_challenger(self, region=None, queue=solo_queue):
 		return self._league_request('league/challenger', region, type=queue)
+
+	#######################
+	#-LoL-Static-Data-v1.2#
+	####################### 
+	def _static_request(self, end_url, region, **kwargs):
+	  return self.base_request('v{version}/{end_url}'.format(
+      version=api_versions['lol-static-data'],
+      end_url=end_url),
+      region,
+      static=True,
+      **kwargs
+	  )
+
+	def static_get_champion_list(self, region=None, locale=None, version=None, data_by_id=None, champ_data=None):
+	  return self._static_request(
+      'champion',
+      region,
+      locale=locale,
+      version=version,
+      dataById=data_by_id,
+      champData=champ_data
+	  )
+
+	def static_get_champion(self, champ_id, region=None, locale=None, version=None, champ_data=None):
+	  return self._static_request(
+      'champion/{id}'.format(id=champ_id),
+      region,
+      locale=locale,
+      version=version,
+      champData=champ_data
+	  )
+
+	def static_get_item_list(self, region=None, locale=None, version=None, item_list_data=None):
+	  return self._static_request('item', region, locale=locale, version=version, itemListData=item_list_data)
+
+	def static_get_item(self, item_id, region=None, locale=None, version=None, item_data=None):
+	  return self._static_request(
+      'item/{id}'.format(id=item_id),
+      region,
+      locale=locale,
+      version=version,
+      itemData=item_data
+	  )
+
+	def static_get_mastery_list(self, region=None, locale=None, version=None, mastery_list_data=None):
+	  return self._static_request(
+      'mastery',
+      region,
+      locale=locale,
+      version=version,
+      masteryListData=mastery_list_data
+	  )
+
+	def static_get_mastery(self, mastery_id, region=None, locale=None, version=None, mastery_data=None):
+	  return self._static_request(
+      'mastery/{id}'.format(id=mastery_id),
+      region,
+      locale=locale,
+      version=version,
+      masteryData=mastery_data
+	  )
+
+	def static_get_realm(self, region=None):
+	  return self._static_request('realm', region)
+
+	def static_get_rune_list(self, region=None, locale=None, version=None, rune_list_data=None):
+	  return self._static_request('rune', region, locale=locale, version=version, runeListData=rune_list_data)
+
+	def static_get_rune(self, rune_id, region=None, locale=None, version=None, rune_data=None):
+	  return self._static_request(
+      'rune/{id}'.format(id=rune_id),
+      region,
+      locale=locale,
+      version=version,
+      runeData=rune_data
+	  )
+
+	def static_get_summoner_spell_list(self, region=None, locale=None, version=None, data_by_id=None, spell_data=None):
+	  return self._static_request(
+      'summoner-spell',
+      region,
+      locale=locale,
+      version=version,
+      dataById=data_by_id,
+      spellData=spell_data
+	  )
+
+	def static_get_summoner_spell(self, spell_id, region=None, locale=None, version=None, spell_data=None):
+	  return self._static_request(
+      'summoner-spell/{id}'.format(id=spell_id),
+      region,
+      locale=locale,
+      version=version,
+      spellData=spell_data
+	  )
+
+	def static_get_versions(self, region=None):
+	  return self._static_request('versions', region) 
+
+  #######################
+	#-----Stats-v1.3------#
+	####################### 
+	def _stats_request(self, end_url, region, **kwargs):
+	  return self.base_request('v{version}/{end_url}'.format(version=api_versions['stats'], end_url=end_url), region, **kwargs)
+
+	def get_stat_summary(self, summoner_id, region=None, season=None):
+	  return self._stats_request(
+      'stats/by-summoner/{summoner_id}/summary'.format(summoner_id=summoner_id),
+      region,
+      season='SEASON{}'.format(season) if season is not None else None)
+
+	def get_ranked_stats(self, summoner_id, region=None, season=None):
+	  return self._stats_request(
+      'stats/by-summoner/{summoner_id}/ranked'.format(summoner_id=summoner_id),
+      region,
+      season='SEASON{}'.format(season) if season is not None else None
+	  )
+
+	#######################
+	#----Summoner-v1.4----#
+	####################### 
+	def _summoner_request(self, end_url, region, **kwargs):
+	  return self.base_request('v{version}/{end_url}'.format(
+      version=api_versions['summoner'],
+      end_url=end_url),
+      region,
+      **kwargs
+	  )
+
+	def get_mastery_pages(self, summoner_ids, region=None):
+	  return self._summoner_request(
+      'summoner/{summoner_ids}/masteries'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
+      region
+	  )
+
+	def get_rune_pages(self, summoner_ids, region=None):
+	  return self._summoner_request(
+      'summoner/{summoner_ids}/runes'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
+      region
+	  )
+
+	def get_summoners(self, names=None, ids=None, region=None):
+	  if (names is None) != (ids is None):
+	    return self._summoner_request(
+	      'summoner/by-name/{summoner_names}'.format(summoner_names=','.join(names)) if names is not None
+	      else 'summoner/{summoner_ids}'.format(summoner_ids=','.join([str(i) for i in ids])),
+	      region
+	    )
+	  else:
+	  	return None
+
+	def get_summoner(self, name=None, id=None, region=None):
+	  if (name is None) != (id is None):
+	    if name is not None:
+	  	  return self.get_summoners(names=[name, ], region=region)[name]
+	    else:
+	    	return self.get_summoners(ids=[id, ], region=region)[str(id)]
+	  return None
+
+	def get_summoner_name(self, summoner_ids, region=None):
+	  return self._summoner_request(
+      'summoner/{summoner_ids}/name'.format(summoner_ids=','.join([str(s) for s in summoner_ids])),
+      region
+	  )
+
+  #######################
+	#------Team-v2.4------#
+	####################### 
+	def _team_request(self, end_url, region, **kwargs):
+	  return self.base_request('v{version}/{end_url}'.format(
+	    version=api_versions['team'],
+	    end_url=end_url),
+	    region,
+	    **kwargs
+	  )
+
+	def get_teams_for_summoner(self, summoner_id, region=None):
+	  return self.get_teams_for_summoners([summoner_id, ], region=region)[str(summoner_id)]
+
+	def get_teams_for_summoners(self, summoner_ids, region=None):
+	  return self._team_request(
+      'team/by-summoner/{summoner_id}'.format(summoner_id=','.join([str(s) for s in summoner_ids])),
+      region
+	  )
+
+	def get_team(self, team_id, region=None):
+	  return self.get_teams([team_id, ], region=region)[str(team_id)]
+
+	def get_teams(self, team_ids, region=None):
+	  return self._team_request('team/{team_ids}'.format(team_ids=','.join(str(t) for t in team_ids)), region)
+
+  #######################
+	#-----Match-v2.2------#
+	#######################
+	def _match_request(self, end_url, region, **kwargs):
+		return self.base_request('v{version}/{end_url}'.format(version=api_versions['match'], end_url=end_url), region, **kwargs)
+
+	def get_match(self, matchId, region=None):
+		return self._match_request('match/{matchId}'.format(matchId=matchId), region)
+
+	#######################
+	#--MatchHistory-v2.2--#
+	#######################
+	def _matchhistory_request(self, end_url, region, **kwargs):
+		return self.base_request('v{version}/{end_url}'.format(version=api_versions['matchhistory'], end_url=end_url), region, **kwargs)
+
+	def get_matchhistory(self, summonerId, region=None):
+		return self._matchhistory_request('matchhistory/{summonerId}'.format(summonerId=summonerId), region)
