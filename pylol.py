@@ -1,6 +1,9 @@
 from collections import deque
 import time
 import requests
+import json
+import Image
+from StringIO import StringIO
 
 #######################
 #------CONSTANTS------#
@@ -185,8 +188,8 @@ class PyLoL:
 		if not static:
 			for lim in self.limits:
 				lim.add_request()
-		raise_status(r)
-		return r.json()
+		raise_response_status(r)
+		return json.loads(r.content)
 	#######################
 	#----Champion-v1.2----#
 	#######################
@@ -256,6 +259,17 @@ class PyLoL:
       static=True,
       **kwargs
 	  )
+
+	"""
+	Get the image of the given champion as a png file
+	"""
+	def static_get_champion_image(self, champ_id):
+		champion = static_get_champion(champ_id,champ_data='image')
+		version = static_get_versions()[0]
+		champion_image_base_url = 'http://ddragon.leagueoflegends.com/cdn/%s/img/champion/' % version
+		response = requests.get(champion_image_base_url + champion['image']['full'])
+		img = Image.open(StringIO(response.content))
+		img.save('Images/Champions/'+champions['image']['full'],"PNG")
 
 	def static_get_champion_list(self, region=None, locale=None, version=None, data_by_id=None, champ_data=None):
 	  return self._static_request(
