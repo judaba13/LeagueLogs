@@ -3,6 +3,7 @@ import time
 import requests
 import json
 import Image
+import os
 from StringIO import StringIO
 
 #######################
@@ -264,12 +265,29 @@ class PyLoL:
 	Get the image of the given champion as a png file
 	"""
 	def static_get_champion_image(self, champ_id):
-		champion = static_get_champion(champ_id,champ_data='image')
-		version = static_get_versions()[0]
+		champion = self.static_get_champion(champ_id,champ_data='image')
+		version = self.static_get_versions()[0]
 		champion_image_base_url = 'http://ddragon.leagueoflegends.com/cdn/%s/img/champion/' % version
 		response = requests.get(champion_image_base_url + champion['image']['full'])
 		img = Image.open(StringIO(response.content))
-		img.save('Images/Champions/'+champions['image']['full'],"PNG")
+		loc = 'Images/Champions/'
+		if not os.path.exists(loc):
+			os.makedirs(loc)
+		img.save(loc+champion['image']['full'],"PNG")
+
+	"""
+	Get the image of the given item as a png file
+	"""
+	def static_get_item_image(self, item_id):
+		item = self.static_get_item(item_id, item_data='image')
+		version = self.static_get_versions()[0]
+		item_image_base_url = 'http://ddragon.leagueoflegends.com/cdn/%s/img/item/' % version
+		response = requests.get(item_image_base_url + item['image']['full'])
+		img = Image.open(StringIO(response.content))
+		loc = 'Images/Items/'
+		if not os.path.exists(loc):
+			os.makedirs(loc)
+		img.save(loc+item['image']['full'],"PNG")
 
 	def static_get_champion_list(self, region=None, locale=None, version=None, data_by_id=None, champ_data=None):
 	  return self._static_request(
